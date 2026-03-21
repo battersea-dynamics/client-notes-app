@@ -1,0 +1,273 @@
+:root {
+  color-scheme: light dark;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+header h1 {
+  margin-bottom: 0.25rem;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+label {
+  display: block;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+input,
+textarea,
+button {
+  width: 100%;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  box-sizing: border-box;
+  padding: 0.65rem;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+}
+
+button.secondary {
+  background: #4b5563;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+}
+
+@media (min-width: 640px) {
+  .button-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.dictation-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.dictation-buttons button {
+  flex: 1;
+}
+
+body {
+  margin: 0;
+  background: #f3f4f6;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin: 12px 0 6px;
+}
+
+input,
+select,
+textarea,
+button {
+  width: 100%;
+  font-size: 1rem;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+input,
+select,
+textarea {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+}
+
+textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.button-row button {
+  flex: 1;
+}
+
+button {
+  padding: 14px;
+  border: none;
+  background: #111827;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #374151;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dictation-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dictation-buttons button {
+  flex: 1;
+}
+
+.status {
+  margin-top: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.note-input-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  text-align: center;
+  padding-top: 10px;
+  margin-bottom: 18px;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.app-logo {
+  width: 46px;
+  height: auto;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.5px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.app-footer {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.dictation-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.dictation-buttons button {
+  flex: 1;
+  padding: 16px;
+  font-size: 1.05rem;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.dictate-btn {
+  background: #2563eb;
+  color: white;
+}
+
+.dictate-btn:active {
+  background: #1d4ed8;
+}
+
+.stop-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.stop-btn:active {
+  background: #dc2626;
+}

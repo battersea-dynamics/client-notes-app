@@ -1,0 +1,10 @@
+[build]
+publish = "."
+command = ""
+
+[functions]
+directory = "netlify/functions"
+
+[dev]
+command = "python -m http.server 8083"
+targetPort = 8083

@@ -1,0 +1,16 @@
+{
+  "name": "github_practice-main",
+  "version": "1.0.0",
+  "description": "This project is now a lightweight PWA (Progressive Web App) that lets a user write notes and save them directly into a text file inside a Google Drive folder.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "googleapis": "^171.4.0"
+  }
+}
