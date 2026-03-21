@@ -83,6 +83,7 @@ button:disabled {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+<<<<<<< HEAD
 
 .dictation-buttons {
   display: flex;
@@ -271,3 +272,5 @@ button:disabled {
 .stop-btn:active {
   background: #dc2626;
 }
+=======
+>>>>>>> bcafc7f2e62f8c1a0e7c1e51655c1c823abb3b71
