@@ -11,7 +11,6 @@
   </head>
   <body>
     <main class="app">
-<<<<<<< HEAD
       <header class="app-header">
        <div class="logo-container">
          <img src="logo.png" class="app-logo" alt="Battersea Dynamics logo" />
@@ -25,33 +24,6 @@
         <select id="patientCode">
          <option value="">patients...</option>
         </select>
-=======
-      <header>
-        <h1>Client Notes</h1>
-        <p>Enter patient session notes and save to the shared log.</p>
-      </header>
-
-      <section class="card" id="adminSetup">
-        <h2>Admin Setup</h2>
-
-        <label for="clientId">Google OAuth Client ID</label>
-        <input id="clientId" type="text" />
-
-        <label for="spreadsheetId">Spreadsheet ID</label>
-        <input id="spreadsheetId" type="text" />
-
-        <div class="button-row">
-          <button id="connectBtn">Connect Google</button>
-          <button id="disconnectBtn" class="secondary" disabled>Disconnect</button>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Session Entry</h2>
-
-        <label for="patientCode">Patient Code</label>
-        <input id="patientCode" type="text" placeholder="e.g. P001" />
->>>>>>> bcafc7f2e62f8c1a0e7c1e51655c1c823abb3b71
 
         <label for="therapistName">Therapist</label>
         <input id="therapistName" type="text" placeholder="Your name" />
@@ -60,7 +32,6 @@
         <input id="entryDate" type="date" />
 
         <label for="notesInput">Note</label>
-<<<<<<< HEAD
 
           <div class="note-input-row">
             <textarea id="notesInput" rows="6" placeholder="Brief session note..."></textarea>
@@ -83,19 +54,6 @@
     </footer>
 
     <script src="offline-queue.js"></script>
-=======
-        <textarea id="notesInput" rows="6" placeholder="Brief session note..."></textarea>
-
-        <div class="button-row">
-          <button id="saveBtn" disabled>Save Entry</button>
-        </div>
-
-        <p id="status" class="status">Connect to enable saving.</p>
-      </section>
-    </main>
-
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
->>>>>>> bcafc7f2e62f8c1a0e7c1e51655c1c823abb3b71
     <script src="app.js"></script>
   </body>
 </html>
