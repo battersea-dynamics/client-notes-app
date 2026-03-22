@@ -3,3 +3,6 @@ service-account.json
 .env
 node_modules
 .netlify
+service-account.json
+service-account1.json
+service_account.json

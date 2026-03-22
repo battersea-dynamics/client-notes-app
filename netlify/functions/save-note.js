@@ -20,8 +20,13 @@ exports.handler = async (event) => {
       return { statusCode: 500, body: 'Server missing SPREADSHEET_ID env var' };
     }
 
-    // Local dev: read service-account.json from the project root
-const creds = JSON.parse(fs.readFileSync('service-account.json', 'utf8'));
+    // Production: read from env var. Local dev: read from service-account.json
+    let creds;
+    if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+      creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+    } else {
+      creds = JSON.parse(fs.readFileSync('service-account.json', 'utf8'));
+    }
 
     const auth = new google.auth.JWT({
       email: creds.client_email,
