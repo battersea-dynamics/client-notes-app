@@ -1,4 +1,4 @@
-const CACHE_NAME = 'drive-notes-cache-v1';
+const CACHE_NAME = 'easy-notes-cache-v2';
 const ASSETS = [
   './',
   './index.html',
