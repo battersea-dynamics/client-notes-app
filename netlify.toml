@@ -1,9 +1,10 @@
 [build]
 publish = "."
-command = ""
+command = "npm install"
 
 [functions]
 directory = "netlify/functions"
+node_bundler = "esbuild"
 
 [dev]
 command = "python -m http.server 8083"
