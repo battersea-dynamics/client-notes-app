@@ -1,5 +1,5 @@
 // ── Element refs ─────────────────────────────────────────
-const therapistEl  = document.getElementById('therapistSelect');
+const therapistEl  = document.getElementById('therapistInput');
 const patientEl    = document.getElementById('patientSelect');
 const dateEl       = document.getElementById('entryDate');
 const noteEl       = document.getElementById('notesInput');
@@ -16,7 +16,7 @@ function setStatus(msg, type = '') {
 
 // ── Save-button gating ────────────────────────────────────
 function updateSaveBtn() {
-  const ready = therapistEl.value && patientEl.value && noteEl.value.trim();
+  const ready = therapistEl.value.trim() && patientEl.value && noteEl.value.trim();
   saveBtn.disabled = !ready;
 }
 
@@ -231,7 +231,7 @@ function init() {
   if (lastNote) noteEl.value = lastNote;
 
   // Persist therapist on change
-  therapistEl.addEventListener('change', () => {
+  therapistEl.addEventListener('input', () => {
     localStorage.setItem(LS.THERAPIST, therapistEl.value);
     updateSaveBtn();
   });

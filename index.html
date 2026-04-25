@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0f172a" />
     <title>Easy Notes</title>
+    <link rel="icon" href="data:,">
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="apple-touch-icon" href="icons/icon-192.svg" />
@@ -26,16 +27,8 @@
 
       <section class="card">
         <div class="field-group">
-          <label for="therapistSelect">Therapist</label>
-          <select id="therapistSelect">
-            <option value="">Select therapist…</option>
-            <option value="Alice">Alice</option>
-            <option value="Ben">Ben</option>
-            <option value="Clara">Clara</option>
-            <option value="David">David</option>
-            <option value="Emma">Emma</option>
-            <option value="Finn">Finn</option>
-          </select>
+         <label for="therapistInput">Therapist</label>
+         <input id="therapistInput" type="text" placeholder="Your name…" autocomplete="off" />
         </div>
 
         <div class="field-group">

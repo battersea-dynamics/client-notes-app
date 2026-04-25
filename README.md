@@ -1,38 +1,47 @@
-# Drive Notes (Phone-Friendly Web App)
+# Easy Notes — Battersea Dynamics
 
-This project is now a lightweight PWA (Progressive Web App) that lets a user write notes and save them directly into a text file inside a Google Drive folder.
+A lightweight PWA (Progressive Web App) for therapists to write and save session notes directly into a Google Sheet, from their phone or any browser.
 
-## Features
+## How it works
 
-- Mobile-friendly single-page UI.
-- Installable on phone home screen (PWA manifest + service worker).
-- OAuth sign-in with Google.
-- Load existing notes file from a chosen Drive folder.
-- Save notes directly to that Drive file (create if missing).
+- Therapist selects their name and the patient from a dropdown
+- Picks the session date (defaults to today)
+- Types or dictates a note
+- Taps **Save Note** — the note is appended as a new row in the Google Sheet instantly
+- Works offline — notes are queued locally and synced when back online
 
-## Setup
+## Stack
 
-1. Create a **Google Cloud OAuth Client ID** for a Web application.
-2. In Google Cloud, enable the **Google Drive API** for your project.
-3. Add your deployed site URL (or local dev URL) to Authorized JavaScript origins.
-4. Open the app and enter:
-   - OAuth Client ID
-   - Google Drive Folder ID
-   - Notes file name (example: `phone-notes.txt`)
-5. Tap **Connect Google Drive**, authorize, then use **Load from Drive** and **Save to Drive**.
+- Vanilla HTML/CSS/JS frontend (PWA, installable on phone home screen)
+- Netlify for hosting and serverless functions
+- Google Sheets API via a service account for reading patients and saving notes
 
-## Local run
+## Google Sheet structure
 
-Use any static server (example):
+The app expects two tabs in the spreadsheet:
 
-```bash
-python3 -m http.server 8080
-```
+| Tab | Columns |
+|-----|---------|
+| `Patients` | A: Patient name (row 1 = header, names from row 2 down) |
+| `Notes` | A: Date, B: Therapist, C: Patient, D: Note |
 
-Then open `http://localhost:8080`.
+## Netlify environment variables
 
-## Important notes
+Set these in Netlify → Site configuration → Environment variables:
 
-- The app stores setup fields in browser localStorage.
-- Notes are only saved to Drive when the user taps **Save to Drive**.
-- Scope used: `https://www.googleapis.com/auth/drive.file`.
+| Variable | Value |
+|----------|-------|
+| `SPREADSHEET_ID` | The ID from your Google Sheet URL |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | Full contents of the service account JSON file |
+
+## Therapist names
+
+Edit the `<select id="therapistSelect">` options in `index.html` to match your team.
+
+## Google Cloud setup
+
+1. Create a project in [Google Cloud Console](https://console.cloud.google.com)
+2. Enable the **Google Sheets API**
+3. Create a **Service Account** and generate a JSON key
+4. Share the Google Sheet with the service account email (Editor access)
+5. Paste the JSON key contents into the Netlify environment variable above
