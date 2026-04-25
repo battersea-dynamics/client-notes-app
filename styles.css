@@ -99,7 +99,7 @@ label {
 }
 
 select,
-input[type="date"],
+input,
 textarea {
   width: 100%;
   font-family: inherit;
