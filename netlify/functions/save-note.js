@@ -1,6 +1,5 @@
 // netlify/functions/save-note.js
 const { google } = require('googleapis');
-const fs = require('fs');
 
 exports.handler = async (event) => {
   try {
@@ -8,29 +7,24 @@ exports.handler = async (event) => {
       return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    const body = JSON.parse(event.body || '{}');
-    const { date, therapist, patient, note } = body;
+    const { therapist, patient, date, note } = JSON.parse(event.body || '{}');
 
     if (!therapist || !patient || !note) {
-      return { statusCode: 400, body: 'Missing required fields' };
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ok: false, error: 'Missing required fields' }),
+      };
     }
 
-    const spreadsheetId = '1sVMdC88AJhCNw87kTMypVv__MoZ2l-ZwmU2eppQ5YdA';
-    if (!spreadsheetId) {
-      return { statusCode: 500, body: 'Server missing SPREADSHEET_ID env var' };
-    }
+    const spreadsheetId = process.env.SPREADSHEET_ID;
+    if (!spreadsheetId) throw new Error('SPREADSHEET_ID env var is not set');
 
-    // Production: read from env var. Local dev: read from service-account.json
-    let creds;
-    if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
-      creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
-    } else {
-      creds = JSON.parse(fs.readFileSync('service-account.json', 'utf8'));
-    }
+    const creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
 
     const auth = new google.auth.JWT({
-      email: creds.client_email,
-      key: creds.private_key,
+      email:  creds.client_email,
+      key:    creds.private_key,
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
@@ -47,14 +41,15 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ ok: true }),
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ok: true }),
     };
   } catch (err) {
+    console.error('save-note error:', err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ ok: false, error: err.message || String(err) }),
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ok: false, error: err.message || String(err) }),
     };
   }
 };

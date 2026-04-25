@@ -1,265 +1,258 @@
-const saveBtnEl = document.getElementById('saveBtn');
-const statusEl = document.getElementById('status');
-const dictateBtnEl = document.getElementById('dictateBtn');
-const stopDictationBtnEl = document.getElementById('stopDictationBtn');
+// ── Element refs ─────────────────────────────────────────
+const therapistEl  = document.getElementById('therapistSelect');
+const patientEl    = document.getElementById('patientSelect');
+const dateEl       = document.getElementById('entryDate');
+const noteEl       = document.getElementById('notesInput');
+const saveBtn      = document.getElementById('saveBtn');
+const dictateBtn   = document.getElementById('dictateBtn');
+const stopBtn      = document.getElementById('stopDictateBtn');
+const statusEl     = document.getElementById('status');
 
-const patientCodeEl = document.getElementById('patientCode');
-const therapistNameEl = document.getElementById('therapistName');
-const entryDateEl = document.getElementById('entryDate');
-const notesInputEl = document.getElementById('notesInput');
-
-function setStatus(message, isError = false) {
-  statusEl.textContent = message;
-  statusEl.style.color = isError ? '#b91c1c' : '#065f46';
+// ── Status helper ─────────────────────────────────────────
+function setStatus(msg, type = '') {
+  statusEl.textContent = msg;
+  statusEl.className   = 'status ' + type;
 }
 
-function setSaveButtonState(isSaving) {
-  saveBtnEl.disabled = isSaving;
-  saveBtnEl.textContent = isSaving ? 'Saving...' : 'Save Entry';
+// ── Save-button gating ────────────────────────────────────
+function updateSaveBtn() {
+  const ready = therapistEl.value && patientEl.value && noteEl.value.trim();
+  saveBtn.disabled = !ready;
 }
 
+// ── LocalStorage keys ─────────────────────────────────────
+const LS = {
+  THERAPIST:  'en_therapist',
+  PATIENT:    'en_patient',
+  LAST_NOTE:  'en_last_note',
+};
+
+// ── Load patients from Netlify function ───────────────────
 async function loadPatients() {
   try {
-    const response = await fetch('/.netlify/functions/get-patients');
-    const data = await response.json();
+    const res  = await fetch('/.netlify/functions/get-patients');
+    const data = await res.json();
 
-    if (!response.ok || data.ok === false) {
-      throw new Error(data.error || 'Failed to load patients');
-    }
+    if (!res.ok || !data.ok) throw new Error(data.error || 'Failed to load patients');
 
-    patientCodeEl.innerHTML = '<option value="">Select patient</option>';
-
-    data.patients.forEach((code) => {
-      const option = document.createElement('option');
-      option.value = code;
-      option.textContent = code;
-      patientCodeEl.appendChild(option);
+    patientEl.innerHTML = '<option value="">Select patient…</option>';
+    data.patients.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = name;
+      patientEl.appendChild(opt);
     });
 
-    const savedPatient = localStorage.getItem('patientCode');
-    if (savedPatient) {
-      patientCodeEl.value = savedPatient;
-    }
-    updateSaveButtonState();
-  } catch (error) {
-    setStatus(error.message || String(error), true);
-    patientCodeEl.innerHTML = '<option value="">No patients loaded</option>';
+    // Restore saved patient
+    const saved = localStorage.getItem(LS.PATIENT);
+    if (saved) patientEl.value = saved;
+
+    updateSaveBtn();
+  } catch (err) {
+    patientEl.innerHTML = '<option value="">Could not load patients</option>';
+    setStatus('Patient list failed to load', 'error');
   }
 }
 
+// ── Save entry ────────────────────────────────────────────
 async function saveEntry() {
-  const patient = patientCodeEl.value.trim();
-  const therapist = therapistNameEl.value.trim();
-  const today = new Date().toISOString().split('T')[0];
+  const therapist = therapistEl.value;
+  const patient   = patientEl.value;
+  const date      = dateEl.value;
+  const note      = noteEl.value.trim();
 
-// If the current date field is empty or older than today, refresh it
-  if (!entryDateEl.value || entryDateEl.value < today) {
-   entryDateEl.value = today;
-  }
-
-  const date = entryDateEl.value;
-  const note = notesInputEl.value.trim();
-
-  if (!patient || !therapist || !note) {
-    setStatus('Please fill Patient, Therapist, and Note.', true);
+  if (!therapist || !patient || !note) {
+    setStatus('Please fill in all fields.', 'error');
     return;
   }
 
-  localStorage.setItem('therapistName', therapist);
+  saveBtn.disabled   = true;
+  saveBtn.textContent = 'Saving…';
+  setStatus('Saving…', 'info');
+
+  const payload = { therapist, patient, date, note };
 
   try {
-    setStatus('Saving...');
-    setSaveButtonState(true);
-
-    const response = await fetch('/.netlify/functions/save-note', {
-      method: 'POST',
+    const res  = await fetch('/.netlify/functions/save-note', {
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ patient, therapist, date, note }),
+      body:    JSON.stringify(payload),
     });
+    const data = await res.json().catch(() => ({}));
 
-    const data = await response.json().catch(() => ({}));
+    if (!res.ok || data.ok === false) throw new Error(data.error || `Server error ${res.status}`);
 
-    if (!response.ok || data.ok === false) {
-      throw new Error(data.error || `Server error ${response.status}`);
-    }
-
-    localStorage.setItem('lastSavedNote', note);
-    notesInputEl.focus();
-
-    setStatus('Saved ✓');
+    // Success — persist note so it stays visible until touched
+    localStorage.setItem(LS.LAST_NOTE, note);
+    setStatus('Saved ✓', 'ok');
 
     setTimeout(() => {
-      setStatus('Ready to save notes.');
-      setSaveButtonState(false);
-    }, 5000);
-  } catch (error) {
-  try {
-    await addPendingNote({ patient, therapist, date, note });
+      setStatus('');
+      saveBtn.textContent = 'Save Note';
+      updateSaveBtn();
+    }, 4000);
 
-    notesInputEl.value = '';
-    notesInputEl.focus();
-
-    setStatus('Saved offline. Will sync later.');
-  } catch (offlineError) {
-    setStatus(
-      `Save failed: ${error.message || String(error)} / Offline save failed: ${offlineError.message || String(offlineError)}`,
-      true
-    );
-  }
-
-  setSaveButtonState(false);
-}
-}
-
-function setupDictation() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-    dictateBtnEl.disabled = true;
-    stopDictationBtnEl.disabled = true;
-    dictateBtnEl.textContent = '🎤 Not supported';
-    return;
-  }
-
-  const recognition = new SpeechRecognition();
-  recognition.lang = 'en-GB';
-  recognition.interimResults = true;
-  recognition.continuous = false;
-
-  let finalTranscript = '';
-
-  dictateBtnEl.addEventListener('click', () => {
-  finalTranscript = '';
-
-  const lastSavedNote = localStorage.getItem('lastSavedNote');
-  if (notesInputEl.value === lastSavedNote) {
-    notesInputEl.value = '';
-  }
-
-  recognition.start();
-  dictateBtnEl.textContent = '🎤 Listening...';
-  setStatus('Listening...');
-});
-
-  stopDictationBtnEl.addEventListener('click', () => {
-    recognition.stop();
-    dictateBtnEl.textContent = '🎤 Dictate';
-    setStatus('Dictation stopped.');
-  });
-
-  recognition.onresult = (event) => {
-    let interimTranscript = '';
-
-    for (let i = event.resultIndex; i < event.results.length; i += 1) {
-      const transcript = event.results[i][0].transcript;
-      if (event.results[i].isFinal) {
-        finalTranscript += `${transcript} `;
-      } else {
-        interimTranscript += transcript;
-      }
+  } catch (err) {
+    // Offline fallback
+    try {
+      await addPendingNote(payload);
+      localStorage.setItem(LS.LAST_NOTE, note);
+      setStatus('Saved offline — will sync when online.', 'info');
+    } catch (offErr) {
+      setStatus('Save failed: ' + (err.message || err), 'error');
     }
-
-  const dictatedText = (finalTranscript + interimTranscript).trim();
-  const existingText = notesInputEl.value.trim();
-
-  notesInputEl.value = existingText
-    ? `${existingText} ${dictatedText}`.trim()
-    : dictatedText;
-  };
-
-  recognition.onend = () => {
-    dictateBtnEl.textContent = '🎤 Dictate';
-    setStatus('Ready to save notes.');
-  };
-
-  recognition.onerror = () => {
-    dictateBtnEl.textContent = '🎤 Dictate';
-    setStatus('Dictation error or permission denied.', true);
-  };
+    saveBtn.textContent = 'Save Note';
+    updateSaveBtn();
+  }
 }
 
-async function syncPendingNotes() {
+// ── Sync offline queue ────────────────────────────────────
+async function syncOffline() {
   try {
-    const pendingNotes = await getPendingNotes();
+    const pending = await getPendingNotes();
+    if (!pending.length) return;
 
-    if (!pendingNotes.length) {
-      return;
-    }
+    setStatus(`Syncing ${pending.length} offline note(s)…`, 'info');
 
-    setStatus(`Syncing ${pendingNotes.length} offline note(s)...`);
-
-    for (const item of pendingNotes) {
-      const response = await fetch('/.netlify/functions/save-note', {
-        method: 'POST',
+    for (const item of pending) {
+      const res  = await fetch('/.netlify/functions/save-note', {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patient: item.patient,
-          therapist: item.therapist,
-          date: item.date,
-          note: item.note,
-        }),
+        body:    JSON.stringify(item),
       });
-
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok || data.ok === false) {
-        throw new Error(data.error || `Server error ${response.status}`);
-      }
-
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) throw new Error(data.error || `${res.status}`);
       await deletePendingNote(item.id);
     }
 
-    setStatus('Offline notes synced ✓');
-  } catch (error) {
-    setStatus(`Sync failed: ${error.message || String(error)}`, true);
+    setStatus('Offline notes synced ✓', 'ok');
+    setTimeout(() => setStatus(''), 3000);
+  } catch (err) {
+    setStatus('Sync failed: ' + (err.message || err), 'error');
   }
 }
 
-function updateSaveButtonState() {
-  const hasPatient = patientCodeEl.value.trim() !== '';
-  saveBtnEl.disabled = !hasPatient;
-}
+// ── Dictation ─────────────────────────────────────────────
+function setupDictation() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-function init() {
-  setStatus('Ready to save notes.');
-  loadPatients();
-  syncPendingNotes();
-  setupDictation();
-
-  patientCodeEl.addEventListener('change', () => {
-    localStorage.setItem('patientCode', patientCodeEl.value);
-    updateSaveButtonState();
-  });
-
-  const savedTherapist = localStorage.getItem('therapistName');
-  if (savedTherapist) {
-    therapistNameEl.value = savedTherapist;
+  if (!SR) {
+    dictateBtn.disabled = true;
+    stopBtn.disabled    = true;
+    dictateBtn.textContent = '🎤 Not supported';
+    return;
   }
 
-    const lastSavedNote = localStorage.getItem('lastSavedNote');
-  if (lastSavedNote) {
-    notesInputEl.value = lastSavedNote;
-  }
+  const recognition       = new SR();
+  recognition.lang        = 'en-GB';
+  recognition.continuous  = false;
+  recognition.interimResults = true;
 
-  const today = new Date().toISOString().split('T')[0];
-  entryDateEl.value = today;
+  let finalTranscript = '';
+  let baseText        = '';   // text that was in the box before dictation started
 
-    let shouldClearSavedNoteOnNextInput = false;
+  dictateBtn.addEventListener('click', () => {
+    // If the note shown is the "last saved" placeholder, clear it first
+    const lastSaved = localStorage.getItem(LS.LAST_NOTE);
+    if (noteEl.value === lastSaved) noteEl.value = '';
 
-  notesInputEl.addEventListener('focus', () => {
-    const lastSavedNote = localStorage.getItem('lastSavedNote');
-    shouldClearSavedNoteOnNextInput = !!lastSavedNote && notesInputEl.value === lastSavedNote;
+    finalTranscript = '';
+    baseText        = noteEl.value.trim();
+
+    recognition.start();
+    dictateBtn.textContent = '🎤 Listening…';
+    dictateBtn.disabled    = true;
+    noteEl.classList.add('listening');
+    setStatus('Listening…', 'info');
   });
 
-  notesInputEl.addEventListener('input', () => {
-    if (shouldClearSavedNoteOnNextInput) {
-      shouldClearSavedNoteOnNextInput = false;
-      notesInputEl.value = '';
+  stopBtn.addEventListener('click', () => {
+    recognition.stop();
+  });
+
+  recognition.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) finalTranscript += t + ' ';
+      else interim += t;
     }
-  });
+    const combined = (finalTranscript + interim).trim();
+    noteEl.value = baseText ? `${baseText} ${combined}` : combined;
+    updateSaveBtn();
+  };
 
-  saveBtnEl.addEventListener('click', saveEntry);
+  recognition.onend = () => {
+    dictateBtn.textContent = '🎤 Dictate';
+    dictateBtn.disabled    = false;
+    noteEl.classList.remove('listening');
+    setStatus('');
+    // Update base for any continuation
+    baseText = noteEl.value.trim();
+  };
+
+  recognition.onerror = () => {
+    dictateBtn.textContent = '🎤 Dictate';
+    dictateBtn.disabled    = false;
+    noteEl.classList.remove('listening');
+    setStatus('Dictation error or permission denied.', 'error');
+  };
 }
 
-window.addEventListener('online', syncPendingNotes);
+// ── Note field — clear on touch if showing last saved ─────
+function setupNoteClear() {
+  let shouldClear = false;
+
+  noteEl.addEventListener('focus', () => {
+    const lastSaved = localStorage.getItem(LS.LAST_NOTE);
+    shouldClear = !!(lastSaved && noteEl.value === lastSaved);
+  });
+
+  noteEl.addEventListener('input', () => {
+    if (shouldClear) {
+      // Remove everything typed so far, start fresh
+      shouldClear    = false;
+      noteEl.value   = '';
+    }
+    updateSaveBtn();
+  });
+}
+
+// ── Init ─────────────────────────────────────────────────
+function init() {
+  // Date defaults to today
+  dateEl.value = new Date().toISOString().split('T')[0];
+
+  // Restore therapist
+  const savedTherapist = localStorage.getItem(LS.THERAPIST);
+  if (savedTherapist) therapistEl.value = savedTherapist;
+
+  // Restore last note (stays until touched or dictate pressed)
+  const lastNote = localStorage.getItem(LS.LAST_NOTE);
+  if (lastNote) noteEl.value = lastNote;
+
+  // Persist therapist on change
+  therapistEl.addEventListener('change', () => {
+    localStorage.setItem(LS.THERAPIST, therapistEl.value);
+    updateSaveBtn();
+  });
+
+  // Persist patient on change
+  patientEl.addEventListener('change', () => {
+    localStorage.setItem(LS.PATIENT, patientEl.value);
+    updateSaveBtn();
+  });
+
+  noteEl.addEventListener('input', updateSaveBtn);
+
+  saveBtn.addEventListener('click', saveEntry);
+
+  setupNoteClear();
+  setupDictation();
+  loadPatients();
+  syncOffline();
+
+  updateSaveBtn();
+}
+
+window.addEventListener('online', syncOffline);
 window.addEventListener('DOMContentLoaded', init);

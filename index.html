@@ -3,55 +3,68 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1f2937" />
-    <title>Client Notes</title>
+    <meta name="theme-color" content="#0f172a" />
+    <title>Easy Notes</title>
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="apple-touch-icon" href="icons/icon-192.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
   </head>
   <body>
     <main class="app">
       <header class="app-header">
-       <div class="logo-container">
-         <img src="logo.png" class="app-logo" alt="Battersea Dynamics logo" />
-       </div>
-       <h1 class="app-title">Easy Notes</h1>
-      </header>
-      <section class="card">
-        <h2>Session Entry</h2>
-
-        <label for="patientCode">Patient</label>
-        <select id="patientCode">
-         <option value="">patients...</option>
-        </select>
-
-        <label for="therapistName">Therapist</label>
-        <input id="therapistName" type="text" placeholder="Your name" />
-
-        <label for="entryDate">Date</label>
-        <input id="entryDate" type="date" />
-
-        <label for="notesInput">Note</label>
-
-          <div class="note-input-row">
-            <textarea id="notesInput" rows="6" placeholder="Brief session note..."></textarea>
-              <div class="dictation-buttons">
-                <button id="dictateBtn" type="button" class="dictate-btn">🎤 Dictate</button>
-                <button id="stopDictationBtn" type="button" class="stop-btn">⏹ Stop</button>
-              </div>
+        <div class="header-inner">
+          <img src="logo.png" class="app-logo" alt="Battersea Dynamics" onerror="this.style.display='none'" />
+          <div class="header-text">
+            <h1 class="app-title">Easy Notes</h1>
+            <p class="app-sub">Battersea Dynamics</p>
           </div>
+        </div>
+      </header>
 
-        <div class="button-row">
-          <button id="saveBtn">Save Entry</button>
+      <section class="card">
+        <div class="field-group">
+          <label for="therapistSelect">Therapist</label>
+          <select id="therapistSelect">
+            <option value="">Select therapist…</option>
+            <option value="Alice">Alice</option>
+            <option value="Ben">Ben</option>
+            <option value="Clara">Clara</option>
+            <option value="David">David</option>
+            <option value="Emma">Emma</option>
+            <option value="Finn">Finn</option>
+          </select>
         </div>
 
-        <p id="status" class="status">Ready to save notes.</p>
+        <div class="field-group">
+          <label for="patientSelect">Patient</label>
+          <select id="patientSelect">
+            <option value="">Loading patients…</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="entryDate">Date</label>
+          <input id="entryDate" type="date" />
+        </div>
+
+        <div class="field-group">
+          <label for="notesInput">Note</label>
+          <textarea id="notesInput" rows="6" placeholder="Session note…"></textarea>
+          <div class="dictation-row">
+            <button id="dictateBtn" class="btn-dictate" type="button">🎤 Dictate</button>
+            <button id="stopDictateBtn" class="btn-stop" type="button">⏹ Stop</button>
+          </div>
+        </div>
+
+        <button id="saveBtn" class="btn-save" type="button" disabled>Save Note</button>
+        <p id="status" class="status"></p>
       </section>
     </main>
 
-    <footer class="app-footer">
-      by Battersea Dynamics
-    </footer>
+    <footer class="app-footer">by Battersea Dynamics</footer>
 
     <script src="offline-queue.js"></script>
     <script src="app.js"></script>

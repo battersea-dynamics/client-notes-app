@@ -1,23 +1,16 @@
 // netlify/functions/get-patients.js
 const { google } = require('googleapis');
-const fs = require('fs');
 
 exports.handler = async () => {
   try {
-    const spreadsheetId =
-      process.env.SPREADSHEET_ID || '1sVMdC88AJhCNw87kTMypVv__MoZ2l-ZwmU2eppQ5YdA';
+    const spreadsheetId = process.env.SPREADSHEET_ID;
+    if (!spreadsheetId) throw new Error('SPREADSHEET_ID env var is not set');
 
-    let creds;
-
-    if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
-      creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
-    } else {
-      creds = JSON.parse(fs.readFileSync('service-account.json', 'utf8'));
-    }
+    const creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
 
     const auth = new google.auth.JWT({
-      email: creds.client_email,
-      key: creds.private_key,
+      email:  creds.client_email,
+      key:    creds.private_key,
       scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
     });
 
@@ -28,10 +21,10 @@ exports.handler = async () => {
       range: 'Patients!A:A',
     });
 
-    const values = res.data.values || [];
-    const patients = values
-      .slice(1)
-      .map((r) => (r?.[0] || '').trim())
+    const rows     = res.data.values || [];
+    const patients = rows
+      .slice(1)                            // skip header row
+      .map(r => (r[0] || '').trim())
       .filter(Boolean);
 
     return {
@@ -40,6 +33,7 @@ exports.handler = async () => {
       body: JSON.stringify({ ok: true, patients }),
     };
   } catch (err) {
+    console.error('get-patients error:', err);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
