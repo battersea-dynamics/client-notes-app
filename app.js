@@ -198,24 +198,6 @@ function setupDictation() {
   };
 }
 
-// ── Note field — clear on touch if showing last saved ─────
-function setupNoteClear() {
-  let shouldClear = false;
-
-  noteEl.addEventListener('focus', () => {
-    const lastSaved = localStorage.getItem(LS.LAST_NOTE);
-    shouldClear = !!(lastSaved && noteEl.value === lastSaved);
-  });
-
-  noteEl.addEventListener('input', () => {
-    if (shouldClear) {
-      // Remove everything typed so far, start fresh
-      shouldClear    = false;
-      noteEl.value   = '';
-    }
-    updateSaveBtn();
-  });
-}
 
 // ── Init ─────────────────────────────────────────────────
 function init() {
@@ -246,7 +228,7 @@ function init() {
 
   saveBtn.addEventListener('click', saveEntry);
 
-  setupNoteClear();
+  noteEl.addEventListener('input', updateSaveBtn);
   setupDictation();
   loadPatients();
   syncOffline();
